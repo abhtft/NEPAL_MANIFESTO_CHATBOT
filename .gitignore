@@ -1,0 +1,11 @@
+/node_modules
+/build
+
+/venv
+/ENV
+/venv/
+/ENV/
+/.env
+/build.sh
+/.venv
+/.venv/

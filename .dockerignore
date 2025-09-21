@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+
+# Venvs
+.venv/
+venv/
+ENV/
+
+# Development
+.git/
+.gitignore
+*.log
+
+# Local data/cache
+chroma_store/
+*.sqlite
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Node/JS (if any)
+node_modules/

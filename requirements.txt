@@ -1,0 +1,14 @@
+langchain
+langgraph
+arize-phoenix
+chromadb
+pypdf
+tiktoken
+openai
+streamlit
+langchain_openai
+dotenv
+langchain_community
+
+
+#discussion on azure and openai
