@@ -17,3 +17,7 @@ This chatbot answers questions based on the manifesto document.
    ```bash
    streamlit run app.py
    ```
+
+## Behavior
+
+The assistant adds a general starting system prompt once per session to guide response style, guardrails, and scope. To adjust it, edit `SYSTEM_PROMPT` in `bot/memory.py`.

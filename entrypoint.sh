@@ -3,6 +3,8 @@ set -e
 
 # Map env var names used in code
 # Prefer AZURE_OPENAI_ENDPOINT but code may read AZURE_ENDPOINT
+#not good code
+
 if [ -n "$AZURE_OPENAI_ENDPOINT" ] && [ -z "$AZURE_ENDPOINT" ]; then
   export AZURE_ENDPOINT="$AZURE_OPENAI_ENDPOINT"
 fi
