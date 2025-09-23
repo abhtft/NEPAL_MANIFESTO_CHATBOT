@@ -84,3 +84,10 @@
 - Human review: weekly 20-sample audit; feed misses back into gold set.
 
 -------------------------------------------------
+
+sure,please update the code as per do now part.keep updates clear ,consize and not add unneceesary complexity.add those things that bring meaningfull variation in chatbot. You are allowed to read manifesto.pdf in data section to generate gold questions .keep 15 eval diverse question.PLease start
+
+
+--------------------------------------------------
+
+python run_eval.py

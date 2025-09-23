@@ -8,7 +8,7 @@ openai
 streamlit
 langchain_openai
 dotenv
-langchain_community
+langchain-community
 
 # tracing for arize phoenix
 openinference-instrumentation-langchain

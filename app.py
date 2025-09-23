@@ -1,10 +1,16 @@
 import streamlit as st
 from bot.chain import get_chain
+from retriever.retriever import get_retriever_config
 from monitoring.arize_integration import init_arize_tracing
 from dotenv import load_dotenv
 import os
 import json
 import uuid
+from time import perf_counter
+try:
+    from opentelemetry import trace as otel_trace  # type: ignore
+except Exception:
+    otel_trace = None  # optional
 from datetime import datetime
 #from monitoring.arize_integration import init_arize
 # Load .env file
@@ -35,8 +41,24 @@ query = st.chat_input("Type your question here...")
 
 if query:
     with st.spinner("Thinking..."):
+        start_ts = perf_counter()
         result = chain.invoke({"question": query})
+        latency_ms = (perf_counter() - start_ts) * 1000.0
         answer = result["answer"]
+        # Minimal tracing attributes
+        try:
+            if otel_trace is not None:
+                span = otel_trace.get_current_span()
+                retr_cfg = get_retriever_config()
+                span.set_attribute("app.session_id", st.session_state.get("session_id"))
+                span.set_attribute("rag.k", retr_cfg.get("k"))
+                span.set_attribute("rag.fetch_k", retr_cfg.get("fetch_k"))
+                span.set_attribute("rag.lambda_mult", retr_cfg.get("lambda_mult"))
+                span.set_attribute("rag.latency_ms", round(latency_ms, 2))
+                span.set_attribute("rag.question_length", len(query))
+                span.set_attribute("rag.answer_length", len(answer))
+        except Exception:
+            pass
         st.session_state.history.append({
             "speaker": "You",
             "text": query,

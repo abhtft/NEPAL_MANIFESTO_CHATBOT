@@ -30,3 +30,12 @@ def get_retriever():
         },
     )
 
+
+def get_retriever_config():
+    return {
+        "search_type": "mmr",
+        "k": 4,
+        "fetch_k": 20,
+        "lambda_mult": 0.5,
+    }
+
