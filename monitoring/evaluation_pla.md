@@ -64,3 +64,23 @@
 - Long-term
   - Drift monitoring for embeddings (periodic re-embed) and data updates.
   - Expand eval set to cover new manifesto revisions and user feedback.
+
+
+  -----------------------------------------------------------
+  ### P0 — Do now
+- Build small gold Q&A set (50–200) with section/page citations.
+- Enable Phoenix trace attributes: session/request IDs, model name, k/fetch_k/lambda, scores, token counts, latencies.
+- Add LLM-as-judge for groundedness and relevance; fail if unsupported by context.
+- Track retrieval hit rate@k and duplicate rate; keep k=4 with MMR.
+
+### P1 — Next
+- Auto citation check: ensure cited chunks support claims (string/semantic overlap).
+- Add per-query cost/latency dashboards in Phoenix; alert on p95 latency and token spikes.
+- Nightly batch eval on gold set; compare to baseline and block regressions.
+
+### P2 — Later
+- Try hybrid retrieval (BM25 + vector) or reranking; adopt only if groundedness improves without cost blowup.
+- Safety checks: refusal correctness for out-of-scope and PII/toxicity screens.
+- Human review: weekly 20-sample audit; feed misses back into gold set.
+
+-------------------------------------------------
