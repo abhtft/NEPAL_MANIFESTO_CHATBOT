@@ -12,3 +12,5 @@ def init_arize_tracing():
     except Exception as e:
         # Keep it non-blocking
         print(f"⚠️ Phoenix tracing not enabled: {e}")
+
+

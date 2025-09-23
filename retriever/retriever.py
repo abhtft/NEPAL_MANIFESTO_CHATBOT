@@ -15,4 +15,18 @@ def get_retriever():
         embedding_function=embeddings
     )
 
-    return vectordb.as_retriever(search_kwargs={"k": 4})
+
+
+    #general working
+    # return vectordb.as_retriever(search_kwargs={"k": 4})
+
+    # Use MMR (Maximal Marginal Relevance) to reduce duplicate/near-duplicate chunks
+    return vectordb.as_retriever(
+        search_type="mmr",
+        search_kwargs={
+            "k": 4,          # maximum results
+            "fetch_k": 20,   # candidate pool size for diversification
+            "lambda_mult": 0.5,  # balance relevance vs. diversity
+        },
+    )
+
