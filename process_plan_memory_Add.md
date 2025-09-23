@@ -49,3 +49,10 @@
   - No duplicate system messages within a session.
   - Responses follow style/guardrails; tests pass.
   - Configurable via file and env; safe rollback path.
+
+
+  ----------------------------------------------------------------------
+
+  arize development
+
+  

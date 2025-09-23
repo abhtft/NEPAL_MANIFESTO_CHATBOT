@@ -1,5 +1,6 @@
 import streamlit as st
 from bot.chain import get_chain
+from monitoring.arize_integration import init_arize_tracing
 from dotenv import load_dotenv
 import os
 import json
@@ -9,6 +10,12 @@ from datetime import datetime
 # Load .env file
 load_dotenv()
 
+
+# Initialize tracing (non-blocking)
+try:
+    init_arize_tracing()
+except Exception:
+    pass
 
 chain = get_chain()
 #arize_session = init_arize()

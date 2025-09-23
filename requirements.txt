@@ -10,5 +10,8 @@ langchain_openai
 dotenv
 langchain_community
 
+# tracing for arize phoenix
+openinference-instrumentation-langchain
+
 
 #discussion on azure and openai
