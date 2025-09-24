@@ -3,6 +3,13 @@ import os
 from time import perf_counter
 from bot.chain import get_chain
 from monitoring.arize_integration import init_arize_tracing
+from monitoring.eval.eval_func import (
+    evaluate_retrieval_relevance,
+    evaluate_retrieval_correctness,
+    evaluate_answer_grounding,
+    evaluate_answer_accuracy,
+    evaluate_clarity,
+)
 try:
     from opentelemetry import trace as otel_trace  # type: ignore
     from opentelemetry.context import Context  # type: ignore
@@ -27,6 +34,13 @@ def evaluate() -> dict:
     hit_count = 0
     total_latency_ms = 0.0
     duplicate_rates = []
+
+    # New metric counters
+    retrieval_relevance_true = 0
+    retrieval_correctness_true = 0
+    answer_grounding_true = 0
+    answer_accuracy_true = 0
+    answer_clarity_true = 0
 
     # Identify this evaluation run
     run_id = os.getenv("EVAL_RUN_ID", os.getenv("GIT_COMMIT", "local-run"))
@@ -78,11 +92,49 @@ def evaluate() -> dict:
         dup_rate = 1.0 - (unique / len(ids)) if ids else 0.0
         duplicate_rates.append(dup_rate)
 
+        # Prepare plain text contexts from retrieved documents
+        contexts = []
+        for d in docs:
+            try:
+                content = getattr(d, "page_content", "") or ""
+            except Exception:
+                content = ""
+            if content:
+                contexts.append(content)
+
         # Naive hit check: keyword overlap with answer
         present = sum(1 for k in expected_keywords if k in answer.lower())
         hit = present >= max(1, int(0.5 * len(expected_keywords))) if expected_keywords else False
         if hit:
             hit_count += 1
+
+        # Run LLM-based evaluations (best-effort)
+        try:
+            ret_rel = bool(evaluate_retrieval_relevance(q, contexts))
+        except Exception:
+            ret_rel = False
+        try:
+            ret_corr = bool(evaluate_retrieval_correctness(q, contexts))
+        except Exception:
+            ret_corr = False
+        try:
+            ans_ground = bool(evaluate_answer_grounding(q, contexts, answer))
+        except Exception:
+            ans_ground = False
+        try:
+            ans_acc = bool(evaluate_answer_accuracy(q, contexts, answer))
+        except Exception:
+            ans_acc = False
+        try:
+            ans_clear = bool(evaluate_clarity({"answer": answer}, {"question": q}))
+        except Exception:
+            ans_clear = False
+
+        retrieval_relevance_true += 1 if ret_rel else 0
+        retrieval_correctness_true += 1 if ret_corr else 0
+        answer_grounding_true += 1 if ans_ground else 0
+        answer_accuracy_true += 1 if ans_acc else 0
+        answer_clarity_true += 1 if ans_clear else 0
 
         if item_span_cm is not None:
             try:
@@ -91,6 +143,12 @@ def evaluate() -> dict:
                 item_span.set_attribute("eval.hit", bool(hit))
                 item_span.set_attribute("eval.answer_length", len(answer))
                 item_span.set_attribute("output", answer)
+                # Add new metric attributes
+                item_span.set_attribute("eval.retrieval_relevance", bool(ret_rel))
+                item_span.set_attribute("eval.retrieval_correctness", bool(ret_corr))
+                item_span.set_attribute("eval.answer_grounding", bool(ans_ground))
+                item_span.set_attribute("eval.answer_accuracy", bool(ans_acc))
+                item_span.set_attribute("eval.answer_clarity", bool(ans_clear))
             except Exception:
                 pass
             try:
@@ -102,7 +160,12 @@ def evaluate() -> dict:
             "question": q,
             "latency_ms": round(latency_ms, 2),
             "duplicate_rate": round(dup_rate, 3),
-            "hit": hit
+            "hit": hit,
+            "retrieval_relevance": ret_rel,
+            "retrieval_correctness": ret_corr,
+            "answer_grounding": ans_ground,
+            "answer_accuracy": ans_acc,
+            "answer_clarity": ans_clear,
         })
 
     summary = {
@@ -110,6 +173,11 @@ def evaluate() -> dict:
         "hit_rate": round(hit_count / max(1, len(gold)), 3),
         "avg_latency_ms": round(total_latency_ms / max(1, len(gold)), 2),
         "avg_duplicate_rate": round(sum(duplicate_rates) / max(1, len(duplicate_rates)), 3),
+        "retrieval_relevance_rate": round(retrieval_relevance_true / max(1, len(gold)), 3),
+        "retrieval_correctness_rate": round(retrieval_correctness_true / max(1, len(gold)), 3),
+        "answer_grounding_rate": round(answer_grounding_true / max(1, len(gold)), 3),
+        "answer_accuracy_rate": round(answer_accuracy_true / max(1, len(gold)), 3),
+        "answer_clarity_rate": round(answer_clarity_true / max(1, len(gold)), 3),
         "results": results,
     }
     return summary
