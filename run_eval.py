@@ -5,8 +5,10 @@ from bot.chain import get_chain
 from monitoring.arize_integration import init_arize_tracing
 try:
     from opentelemetry import trace as otel_trace  # type: ignore
+    from opentelemetry.context import Context  # type: ignore
 except Exception:
     otel_trace = None  # optional
+    Context = None  # type: ignore
 
 
 def evaluate() -> dict:
@@ -30,15 +32,35 @@ def evaluate() -> dict:
     run_id = os.getenv("EVAL_RUN_ID", os.getenv("GIT_COMMIT", "local-run"))
     experiment_name = os.getenv("EVAL_EXPERIMENT", "offline-eval")
 
+    tracer = None
+    try:
+        if otel_trace is not None:
+            tracer = otel_trace.get_tracer("evaluation")
+    except Exception:
+        tracer = None
+
     for item in gold:
         q = item["question"]
         expected_keywords = set(k.lower() for k in item.get("expected_keywords", []))
+
+        # Start a ROOT span per question so each item is a separate trace
+        item_span_cm = tracer.start_as_current_span("evaluation_item", context=Context()) if tracer is not None and Context is not None else None
+        if item_span_cm is not None:
+            item_span = item_span_cm.__enter__()
+            try:
+                item_span.set_attribute("eval.context", "evaluation")
+                item_span.set_attribute("eval.experiment", experiment_name)
+                item_span.set_attribute("eval.run_id", run_id)
+                item_span.set_attribute("eval.expected_keywords_count", len(expected_keywords))
+                item_span.set_attribute("eval.question_length", len(q))
+                item_span.set_attribute("input", q)
+            except Exception:
+                pass
 
         start = perf_counter()
         out = chain.invoke({"question": q})#q is simple question from gold_qa.json
         latency_ms = (perf_counter() - start) * 1000.0
         total_latency_ms += latency_ms
-
 
         #getting responce
         answer = out.get("answer", "") or ""
@@ -52,8 +74,6 @@ def evaluate() -> dict:
             id_str = str(meta.get("source", "")) + ":" + str(meta.get("page", meta.get("page_number", "")))
             ids.append(id_str)
 
-    
-
         unique = len(set(ids)) if ids else 0
         dup_rate = 1.0 - (unique / len(ids)) if ids else 0.0
         duplicate_rates.append(dup_rate)
@@ -64,21 +84,19 @@ def evaluate() -> dict:
         if hit:
             hit_count += 1
 
-        # Minimal span attributes for Phoenix filtering
-        try:
-            if otel_trace is not None:
-                span = otel_trace.get_current_span()
-                span.set_attribute("eval.context", "evaluation")
-                span.set_attribute("eval.experiment", experiment_name)
-                span.set_attribute("eval.run_id", run_id)
-                span.set_attribute("eval.latency_ms", round(latency_ms, 2))
-                span.set_attribute("eval.duplicate_rate", round(dup_rate, 3))
-                span.set_attribute("eval.hit", bool(hit))
-                span.set_attribute("eval.expected_keywords_count", len(expected_keywords))
-                span.set_attribute("eval.question_length", len(q))
-                span.set_attribute("eval.answer_length", len(answer))
-        except Exception:
-            pass
+        if item_span_cm is not None:
+            try:
+                item_span.set_attribute("eval.latency_ms", round(latency_ms, 2))
+                item_span.set_attribute("eval.duplicate_rate", round(dup_rate, 3))
+                item_span.set_attribute("eval.hit", bool(hit))
+                item_span.set_attribute("eval.answer_length", len(answer))
+                item_span.set_attribute("output", answer)
+            except Exception:
+                pass
+            try:
+                item_span_cm.__exit__(None, None, None)
+            except Exception:
+                pass
 
         results.append({
             "question": q,
@@ -100,5 +118,14 @@ def evaluate() -> dict:
 if __name__ == "__main__":
     s = evaluate()
     print(json.dumps(s, ensure_ascii=False, indent=2))
+
+
+#evluating based on (retreieval quality,answer quality,citation quality,safety and policy,cost and latency)
+
+#retreieval quality
+#answer quality
+#citation quality
+#safety and policy
+#cost and latency
 
 
