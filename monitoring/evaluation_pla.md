@@ -90,4 +90,34 @@ sure,please update the code as per do now part.keep updates clear ,consize and n
 
 --------------------------------------------------
 
-python run_eval.py
+I'll quickly scan the repository for any Phoenix/Arize integration to understand why run_eval.py isn't updating a Phoenix experiment and then explain the best approach.
+
+[6 tools called]
+
+I checked your repo: Phoenix tracing is only initialized in `app.py` via `init_arize_tracing()`. `run_eval.py` doesn’t initialize Phoenix/OpenTelemetry at all, so those eval runs won’t show up in Phoenix “experiments” (or any Phoenix project) right now.
+
+### Should `run_eval.py` update a Phoenix experiment?
+Yes—if you want your evaluation runs to appear in Phoenix, you should instrument `run_eval.py` the same way as the app:
+
+- Initialize Phoenix OTEL before calling the chain (same as `init_arize_tracing()` in `app.py`).
+- Ensure a Phoenix collector is running and reachable (local Phoenix server or configured OTLP endpoint).
+- Tag each evaluation with clear metadata so you can slice/filter in Phoenix:
+  - experiment_name/run_id/dataset_name/commit_sha
+  - per-item attributes: latency_ms, duplicate_rate, hit, expected_keywords_count
+- Optionally keep evals separate by using a different `project_name` from the app, or add a span/resource attribute like `context=evaluation`.
+
+This approach lets Phoenix capture:
+- All LLM/RAG spans from `chain.invoke(...)`
+- Your eval metrics as span attributes
+- Easy comparison across runs by filtering on `experiment_name` or `run_id`
+
+### When sticking to JSON is enough
+If you only need a quick local summary (hit rate, avg latency, duplicate rate), your current `run_eval.py` output is fine. But for longitudinal tracking, debugging misretrievals, and comparing runs, emitting traces to Phoenix is the better method.
+
+### Minimal checklist (no code)
+- Run a Phoenix server/collector and confirm the OTLP endpoint is reachable.
+- Initialize Phoenix OTEL in `run_eval.py` (same pattern used in `app.py`) with a project name.
+- Add experiment/run metadata and eval metrics as span attributes around each `chain.invoke`.
+- Use Phoenix UI to filter by experiment/run.
+
+Status: I reviewed `monitoring/arize_integration.py`, `app.py`, `bot/chain.py`, and confirmed `run_eval.py` lacks tracing init—hence no Phoenix updates. If you want, I can wire this up next.

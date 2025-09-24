@@ -17,7 +17,7 @@ from datetime import datetime
 load_dotenv()
 
 
-# Initialize tracing (non-blocking)
+# Initialize tracing (non-blocking),to not stop programme if it fails
 try:
     init_arize_tracing()
 except Exception:
