@@ -1,1 +1,3 @@
 evaluation should have been updated to phoenic which did not happened.
+
+"""likewise very clear prepare common prompts and function .I expect the following eval criteria for my query,retrieval and generated responce chat (retrieval correctness,retrieval relevance to the query,answer prepared relevance to the retrieval taken,answer accuracy,answer clarity,etc).If you think some other common eval please suggest.Please provide action plan first.Then we can proceed ahead with min update as per priority requirement."""

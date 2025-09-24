@@ -79,3 +79,4 @@ If you expose gRPC 4317 instead:
 - The UI port (6006) is for the browser only. Do not set 6006 in OTLP env vars.
 - If you instrument multiple times, Phoenix may log "Attempting to instrument while already instrumented"; this is safe but avoid duplicate init.
 - In production, consider a `BatchSpanProcessor` and restricting payload size; by default, Phoenix uses a simple processor.
+
