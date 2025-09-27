@@ -15,8 +15,6 @@ def get_retriever():
         embedding_function=embeddings
     )
 
-
-
     #general working
     # return vectordb.as_retriever(search_kwargs={"k": 4})
 

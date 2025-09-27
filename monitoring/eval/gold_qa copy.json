@@ -1,0 +1,85 @@
+{
+  "metadata": {
+    "project": "nepal-manifesto-chatbot",
+    "created": "2025-09-23"
+  },
+  "items": [
+    {
+      "question": "Summarize the core economic priorities in the manifesto.",
+      "expected_keywords": ["economy", "growth", "jobs", "investment"],
+      "citations": [
+        { "type": "page", "id": 1 }
+      ]
+    },
+    {
+      "question": "What are the key commitments on healthcare delivery?",
+      "expected_keywords": ["health", "primary care", "hospitals", "insurance"],
+      "citations": [ { "type": "page", "id": 2 } ]
+    },
+    {
+      "question": "List the education reform measures mentioned.",
+      "expected_keywords": ["education", "curriculum", "teacher", "scholarship"],
+      "citations": [ { "type": "page", "id": 3 } ]
+    },
+    {
+      "question": "What infrastructure projects are prioritized?",
+      "expected_keywords": ["infrastructure", "roads", "energy", "digital"],
+      "citations": [ { "type": "page", "id": 4 } ]
+    },
+    {
+      "question": "Describe plans regarding renewable energy.",
+      "expected_keywords": ["renewable", "hydro", "solar", "wind"],
+      "citations": [ { "type": "page", "id": 4 } ]
+    },
+    {
+      "question": "How does the manifesto address agriculture productivity?",
+      "expected_keywords": ["agriculture", "irrigation", "seeds", "market"],
+      "citations": [ { "type": "page", "id": 5 } ]
+    },
+    {
+      "question": "What anti-corruption measures are proposed?",
+      "expected_keywords": ["corruption", "transparency", "accountability"],
+      "citations": [ { "type": "page", "id": 6 } ]
+    },
+    {
+      "question": "How will small and medium enterprises be supported?",
+      "expected_keywords": ["SME", "credit", "tax", "support"],
+      "citations": [ { "type": "page", "id": 7 } ]
+    },
+    {
+      "question": "What plans exist for tourism development?",
+      "expected_keywords": ["tourism", "heritage", "infrastructure"],
+      "citations": [ { "type": "page", "id": 7 } ]
+    },
+    {
+      "question": "Summarize commitments on social welfare.",
+      "expected_keywords": ["social", "welfare", "security", "benefits"],
+      "citations": [ { "type": "page", "id": 8 } ]
+    },
+    {
+      "question": "What is the stance on federalism and governance reforms?",
+      "expected_keywords": ["federal", "governance", "decentralization"],
+      "citations": [ { "type": "page", "id": 6 } ]
+    },
+    {
+      "question": "Describe the digital transformation initiatives.",
+      "expected_keywords": ["digital", "e-governance", "broadband"],
+      "citations": [ { "type": "page", "id": 4 } ]
+    },
+    {
+      "question": "How does the manifesto approach disaster risk management?",
+      "expected_keywords": ["disaster", "resilience", "response"],
+      "citations": [ { "type": "page", "id": 5 } ]
+    },
+    {
+      "question": "What commitments are made for youth employment?",
+      "expected_keywords": ["youth", "employment", "skills", "startup"],
+      "citations": [ { "type": "page", "id": 3 } ]
+    },
+    {
+      "question": "How will public finance management be improved?",
+      "expected_keywords": ["budget", "revenue", "expenditure", "audit"],
+      "citations": [ { "type": "page", "id": 6 } ]
+    }
+  ]
+}

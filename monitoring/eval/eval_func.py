@@ -2,6 +2,9 @@
 #Evaluation prompts and LLM judge utilities#########################
 
 from typing import List, Dict, Any, Optional
+#why is typing used
+#answer:
+
 import os
 
 from langchain_openai import AzureChatOpenAI
@@ -103,7 +106,7 @@ LABEL: accurate or inaccurate
 
 
 # -------------------------
-# LLM helper
+# LLM helper: SImilar to llmClassify
 # -------------------------
 
 _EVAL_LLM: Optional[AzureChatOpenAI] = None
@@ -168,7 +171,7 @@ def llm_judge(
 
 
 # -------------------------
-# Public evaluator functions (minimal wrappers)
+# Public evaluator functions (minimal wrappers): similar to llmEvaluate
 # -------------------------
 
 def evaluate_retrieval_relevance(question: str, contexts: List[str]) -> bool:

@@ -1,6 +1,6 @@
 langchain
 langgraph
-arize-phoenix
+arize-phoenix==11.30.0
 chromadb
 pypdf
 tiktoken
@@ -9,9 +9,10 @@ streamlit
 langchain_openai
 dotenv
 langchain-community
-
+pandas
 # tracing for arize phoenix
 openinference-instrumentation-langchain
+
 
 
 #discussion on azure and openai

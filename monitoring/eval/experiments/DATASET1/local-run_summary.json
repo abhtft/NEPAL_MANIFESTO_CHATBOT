@@ -1,0 +1,61 @@
+{
+  "n": 2,
+  "hit_rate": 1.0,
+  "avg_latency_ms": 4474.61,
+  "avg_duplicate_rate": 0.0,
+  "retrieval_relevance_rate": 1.0,
+  "retrieval_correctness_rate": 1.0,
+  "answer_grounding_rate": 1.0,
+  "answer_accuracy_rate": 1.0,
+  "answer_clarity_rate": 1.0,
+  "overall_score": 1.0,
+  "experiment_name": "DATASET1",
+  "run_id": "local-run",
+  "variant": "default",
+  "results": [
+    {
+      "question": "Summarize the core economic priorities in the manifesto.",
+      "latency_ms": 4344.45,
+      "duplicate_rate": 0.0,
+      "hit": true,
+      "retrieval_relevance": true,
+      "retrieval_correctness": true,
+      "answer_grounding": true,
+      "answer_accuracy": true,
+      "answer_clarity": true,
+      "overall_score": 1.0,
+      "answer": "The core economic priorities in the Nepal Manifesto are:\n\n1. **Promote Local Production and Innovation**: Encourage domestic production, support innovation, and ensure product quality to strengthen Nepal’s economic base.\n\n2. **Break Monopolies and Strengthen Consumer Protection**: Address monopolistic practices, enhance competition, and protect consumer rights.\n\n3. **Attract and Retain Investment**: Reform restrictive policies and bureaucratic hurdles that discourage both local and foreign investment, aiming to boost economic growth and job creation.\n\n4. **Reform Public Contracting**: Make public procurement transparent and accountable to reduce corruption and improve efficiency.\n\n5. **Expand Social Protection**: Implement contribution-based social security for informal workers, universalize child grants, and increase coverage and adequacy of social protection programs.\n\n6. **Digitize Government Services**: Streamline government processes through digitalization to improve service delivery and reduce red tape.\n\n7. **Smart Urban Planning and Public Transportation**: Reform public transportation and urban planning to support economic activity and improve quality of life.\n\nThese priorities aim to create a just, accountable, and dynamic economic system that meets the aspirations of the Nepali people.",
+      "ids": [
+        "7",
+        "5",
+        "177",
+        "105"
+      ],
+      "experiment_name": "DATASET1",
+      "run_id": "local-run",
+      "variant": "default"
+    },
+    {
+      "question": "What are the key commitments on healthcare delivery?",
+      "latency_ms": 4604.76,
+      "duplicate_rate": 0.0,
+      "hit": true,
+      "retrieval_relevance": true,
+      "retrieval_correctness": true,
+      "answer_grounding": true,
+      "answer_accuracy": true,
+      "answer_clarity": true,
+      "overall_score": 1.0,
+      "answer": "The key commitments on healthcare delivery in the Nepal Manifesto include:\n\n1. **Strengthening Rural Healthcare Infrastructure**\n   - Mapping underserved rural and mountainous regions for primary healthcare expansion.\n   - Providing free care services to the most underserved populations as per region.\n   - Constructing and upgrading Primary Health Centers (PHCs) with essential medicines, laboratories, and protection/grievance mechanisms.\n\n2. **Universal Health Coverage**\n   - Envisioning universal health coverage as part of the Sixteenth Five-Year Plan.\n   - Expanding digital health and strengthening primary health care.\n\n3. **Equity, Access, and Quality**\n   - Prioritizing equity, access, and quality health services as outlined in the Nepal Health Sector Strategy (2023–2030).\n\n4. **Health Financing and Insurance**\n   - Expanding access to health financing through insurance schemes under the Health Insurance Act 2017.\n   - Extending contributory health/social insurance to informal workers, with subsidies for low-income groups.\n\n5. **Social Protection Integration**\n   - Fully implementing the Integrated National Framework on Social Protection to harmonize fragmented laws and entitlements.\n   - Raising overall population coverage to 50% by 2027 and moving towards 60% by 2030.\n   - Universalizing the Child Grant nationwide for all children under five, and progressively extending to all children by 2030.\n   - Increasing cash transfer levels (e.g., Child Grant) to cover at least 15% of the Minimum Expenditure Basket by 2028.\n\n6. **Local Government Empowerment**\n   - Empowering local governments to manage primary health care and public health interventions, as per the Local Government Operation Act 2017.\n\n7. **Procurement Reform**\n   - Strengthening the Public Procurement Act with e-procurement, open contract data, and independent audits to curb leakages in health sector procurement.\n\nThese commitments aim to build a just, accountable, and people-centered healthcare system in Nepal, focusing on underserved populations, universal access, and improved quality and transparency.",
+      "ids": [
+        "152",
+        "177",
+        "7",
+        "5"
+      ],
+      "experiment_name": "DATASET1",
+      "run_id": "local-run",
+      "variant": "default"
+    }
+  ]
+}
