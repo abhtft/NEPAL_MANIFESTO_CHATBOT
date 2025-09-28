@@ -1,17 +1,17 @@
-langchain
-langgraph
+langchain==0.3.27
+langgraph==0.6.7
 arize-phoenix==11.30.0
-chromadb
-pypdf
-tiktoken
-openai
-streamlit
-langchain_openai
+chromadb==1.1.0
+pypdf==6.0.0
+tiktoken==0.11.0
+openai==1.108.1
+streamlit==1.49.1
+langchain_openai==0.3.27
 dotenv
-langchain-community
+langchain-community==0.3.27
 pandas
 # tracing for arize phoenix
-openinference-instrumentation-langchain
+openinference-instrumentation-langchain==0.1.0 #(_ or  - used in lib)
 
 
 

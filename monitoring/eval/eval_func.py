@@ -2,12 +2,15 @@
 #Evaluation prompts and LLM judge utilities#########################
 
 from typing import List, Dict, Any, Optional
+import logging
 #why is typing used
 #answer:
 
 import os
 
 from langchain_openai import AzureChatOpenAI
+
+logger = logging.getLogger(__name__)
 
 
 # -------------------------
@@ -164,9 +167,20 @@ def llm_judge(
         answer=(answer or ""),
         contexts=_format_contexts(contexts),
     )
+    logger.debug(
+        "llm_judge_start rails=%s q='%s' ctx_count=%d",
+        ",".join(rails),
+        (question or "")[:120],
+        len(contexts or []),
+    )
     resp = llm.invoke(prompt)
     text = getattr(resp, "content", str(resp))
     label = _extract_label(text, rails)
+    logger.debug(
+        "llm_judge_done label='%s' output_preview='%s'",
+        label,
+        (text or "")[:300].replace("\n", " ")
+    )
     return {"label": label, "explanation": text}
 
 

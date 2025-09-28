@@ -31,6 +31,8 @@ def ingest():
   
     # Add IDs to metadata  
     chunks = []  
+    #each element is an dictionary
+
     for i, chunk in enumerate(chunks_split):  
         doc_id = (i+1)
         # Add id to metadata  
@@ -38,6 +40,8 @@ def ingest():
         chunk.metadata["id"] = doc_id  
        
         chunks.append(chunk)  
+
+    print(doc_id)
   
     # Azure OpenAI Embeddings setup  
     azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT") or os.getenv("AZURE_ENDPOINT")  

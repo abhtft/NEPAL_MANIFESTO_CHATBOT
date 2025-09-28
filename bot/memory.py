@@ -11,7 +11,8 @@ except Exception:
     from langchain.schema import SystemMessage  # type: ignore
 
 
-# Simple, general starting prompt applied once at session start
+# Simple, general starting prompt applied once at session start.
+#multistring is used to add multiple lines of text
 SYSTEM_PROMPT = (
     "You are a helpful RAG assistant for the Nepal Manifesto Chatbot. "
     "Be concise and structured; use short paragraphs and clear bullet lists. "
@@ -32,3 +33,5 @@ def get_memory():
         return_messages=True,
         chat_memory=chat_history,
     )
+
+    #methods and attributes

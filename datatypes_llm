@@ -1,0 +1,86 @@
+Azure AI Foundry
+| gpt-4.1-2025-04-14
+AI-generated content may be incorrect
+Absolutely! Let’s clarify related concepts around LangChain’s .invoke(), outputs, and how to access relevant data, especially in the context of LLMs, chains, and retrieval-based applications.
+
+1. What .invoke() Returns in LangChain
+a. LLM Only
+Returns: str
+Example:
+
+from langchain.llms import OpenAI  
+llm = OpenAI()  
+result = llm.invoke("Hello!")  # result is a string  
+b. Chains (LLMChain, PromptTemplate, etc.)
+Returns: dict (usually with a 'text' or 'output' key)
+Example:
+
+from langchain.chains import LLMChain  
+from langchain.prompts import PromptTemplate  
+prompt = PromptTemplate.from_template("Say hi to {name}")  
+chain = LLMChain(prompt=prompt, llm=llm)  
+result = chain.invoke({"name": "Alice"})  # result is {'text': 'Hi Alice!'}  
+c. Retrieval-Based Chains (e.g., RetrievalQA)
+Returns: dict, possibly with extra keys like 'source_documents'
+If return_source_documents=True is set, you’ll get:
+'result': The answer
+'source_documents': List of Document objects (with .page_content and .metadata)
+Example:
+
+result = qa_chain.invoke({"query": "Your question"})  
+print(result["result"])  # the answer  
+print(result["source_documents"])  # list of Document objects  
+2. How to Access Source Document Content and Metadata
+Each document in source_documents is a Document object.
+To access content and metadata:
+
+
+for doc in result["source_documents"]:  
+    print("Content:", doc.page_content)  
+    print("Metadata:", doc.metadata)  
+Typical metadata might include:
+
+Source filename
+Page number
+URL
+Custom tags
+3. How to Get LLM Metadata (Token Usage, Model Name, etc.)
+Not returned by default.
+Use get_openai_callback (for OpenAI LLMs) or callbacks/tracing for other providers:
+
+from langchain.callbacks import get_openai_callback  
+with get_openai_callback() as cb:  
+    result = llm.invoke("Hello!")  
+    print(cb)  # Shows tokens used, cost, etc.  
+4. How to Know What the Output Contains
+Always check the keys of the returned dictionary:
+
+print(result.keys())  
+For retrieval chains: likely keys are 'query', 'result', and 'source_documents'.
+For LLM chains: likely key is 'text' or 'output'.
+5. Common Pitfalls and Best Practices
+Pitfall: Assuming all .invoke() calls return the same type (they don’t!).
+Always inspect the type and structure of your result.
+Best Practice: Check documentation or print result to understand its structure.
+6. How to Extend or Customize Returned Data
+You can customize the output by:
+
+Writing your own chain logic
+Adding custom metadata to documents when indexing
+Wrapping chains to add additional fields
+7. Summary Table
+Use Case	.invoke() Output	How to Access Extra Info
+LLM Only	str	N/A
+LLMChain / PromptTemplate	dict (e.g., 'text')	result['text']
+RetrievalQA with sources	dict (e.g., 'result', 'source_documents')	Loop through result['source_documents']
+Token/Usage/Cost metadata	Not in result; use callback	See callback object
+8. References
+LangChain Documentation: invoke
+LangChain RetrievalQA
+LangChain Callbacks
+Summary
+.invoke() returns different types (string, dict) depending on what you’re calling.
+Retrieval-based chains can return source documents as a list of objects (with content and metadata).
+LLM usage metadata (e.g., token counts) is not in the result by default—use callbacks.
+Always inspect your result and its keys to know what data you have.
+If you have a specific use case or code snippet, share it and I’ll explain exactly what you’ll get and how to access it!

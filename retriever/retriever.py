@@ -14,9 +14,10 @@ def get_retriever():
         persist_directory="chroma_store",
         embedding_function=embeddings
     )
-
     #general working
     # return vectordb.as_retriever(search_kwargs={"k": 4})
+
+    #at ret
 
     # Use MMR (Maximal Marginal Relevance) to reduce duplicate/near-duplicate chunks
     return vectordb.as_retriever(
