@@ -35,9 +35,16 @@ DEFAULT_WEIGHTS = {
 def calculate_metrics(question: str, answer: str, contexts: List[str], expected_keywords: List[str], ids: List[str]) -> Dict:  
     """Calculate all evaluation metrics in a single pass"""  
     # Basic metrics  
+    answer_lc = (answer or "").lower()
+    if expected_keywords:  
+        matches = sum(1 for k in expected_keywords if k in answer_lc)  
+        hit_value = (matches / len(expected_keywords)) >= 0.5  
+    else:  
+        hit_value = False  
+
     metrics = {  
         "duplicate_rate": 1 - (len(set(ids)) / len(ids)) if ids else 0.0,  
-        "hit": sum(1 for k in expected_keywords if k in answer.lower()) / len(expected_keywords) >= 0.5,  
+        "hit": hit_value,  
     }  
   
     # LLM-based evaluations  
@@ -52,12 +59,15 @@ def calculate_metrics(question: str, answer: str, contexts: List[str], expected_
   
     for metric, (func, args) in evaluation_functions.items():  
         try:  
+            #metrics is the dictionary that will be returned
             metrics[metric] = bool(func(*args))  
         except Exception as e:  
             logger.warning(f"Failed {metric} evaluation: {str(e)}")  
             metrics[metric] = False  
   
-    # Calculate overall score  
+  
+    # Calculate overall score
+    # wt anvlaue recieved sum  
     metrics["overall_score"] = sum(  
         weight * float(metrics[metric])   
         for metric, weight in DEFAULT_WEIGHTS.items()  
@@ -87,7 +97,7 @@ def process_qa_item(item: Dict, chain) -> Dict:
         ids=ids  
     )  
   
-    return {  
+    return {  #relating question answer and metrices to the data
         "question": item["question"],  
         "answer": answer,  
         "latency_ms": round(latency_ms, 2),  
@@ -105,49 +115,74 @@ def run_evaluation() -> pd.DataFrame:
       
     # Process all items  
     chain = get_chain()  
-    results = [process_qa_item(item, chain) for item in gold_data]  
-      
-    return pd.DataFrame(results)  
-  
-def upload_to_phoenix(df: pd.DataFrame, experiment_name: str, candidate_csv_path: Path) -> None:  
-    """Handle Phoenix dataset and experiment creation"""  
-    px_client = px.Client()  
-      
-    # Create unique dataset name  
-    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")  
-    dataset_name = f"{experiment_name}-{timestamp}"  
-      
-    # Upload dataset  
-    dataset = px_client.upload_dataset(  
-        dataframe=df,  
-        dataset_name=dataset_name,  
-        input_keys=["question"],  
+    results = [process_qa_item(item, chain) for item in gold_data]    
+
+    results=pd.DataFrame(results)
+    avg = {
+        "retrieval_relevance": round(results['retrieval_relevance'].mean(), 3),
+        "retrieval_correctness": round(results['retrieval_correctness'].mean(), 3),
+        "answer_grounding": round(results['answer_grounding'].mean(), 3),
+        "answer_accuracy": round(results['answer_accuracy'].mean(), 3),
+        "answer_clarity": round(results['answer_clarity'].mean(), 3),
+        "overall_score": round(results['overall_score'].mean(), 3),
+    }
+    #print(avg)
+    return results,avg
+
+# Per-example task: runs once per dataset row
+def task(input: str, expected=None, metadata=None) -> dict:
+    chain = get_chain()
+    result = process_qa_item(input, chain)  
+    # Ensure JSON-serializable output
+    return {
+        "answer": result["answer"],
+        "retrieval_relevance": round(float(result["retrieval_relevance"]), 3),
+        "retrieval_correctness": round(float(result["retrieval_correctness"]), 3),
+        "answer_grounding": round(float(result["answer_grounding"]), 3),
+        "answer_accuracy": round(float(result["answer_accuracy"]), 3),
+        "answer_clarity": round(float(result["answer_clarity"]), 3),
+        "overall_score": round(float(result["overall_score"]), 3),
+        
+    }
+
+###################
+
+def upload_to_phoenix(df: pd.DataFrame, experiment_name: str) -> None:
+    """Handle Phoenix dataset and experiment creation"""
+    px_client = px.Client()
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    dataset_name = f"{experiment_name}-{timestamp}"
+
+    dataset = px_client.upload_dataset(
+        dataframe=df,
+        dataset_name=dataset_name,
+        input_keys=["question"],
         output_keys=["answer"],
         dataset_description="Evaluation dataset for the manifesto chatgpt",
-    )  
- 
-    #if evaluated and upliaded what is meaning of run experiment?
-    # # Run experiment: use candidate CSV path to avoid 'task' requirement on v11.30.0  
+    )
 
-    # experiment = run_experiment(  
-    #     candidate=str(candidate_csv_path),  
-    #     experiment_name=dataset_name,  
-    #     experiment_metadata={"run_timestamp": timestamp}  
-    # )  
-      
-    # # Set primary metric  
-    # evaluate_experiment(  
-    #     experiment=experiment,  
-    #     primary_metric="overall_score"  
-        
-    # )  
-      
-    logger.info(f"Phoenix experiment available at: {px.active_session().url}")  
+    # Run experiment with avg as metadata
+    experiment = run_experiment(
+        dataset=dataset,
+        experiment_name=dataset_name,
+        experiment_metadata={"run_timestamp": timestamp},
+        task= task#custom function shape taking 
+    )
+    # evaluate_experiment(
+    #     experiment=experiment,
+    #     primary_metric="overall_score"
+    # )
 
-  
+    
+
+    logger.info(f"Phoenix experiment available at: {px.active_session().url}")
+
+
+###################################
+
 if __name__ == "__main__":  
     # 1. Run evaluations once  
-    df = run_evaluation()  
+    df,avg = run_evaluation()  
       
     # 2. Save results locally  
     experiment_name = os.getenv("EVAL_EXPERIMENT", "offline-eval")  
@@ -159,7 +194,7 @@ if __name__ == "__main__":
     logger.info(f"Saved results to {csv_path}")  
       
     # 3. Upload to Phoenix  
-    upload_to_phoenix(df, experiment_name, csv_path)  
+    upload_to_phoenix(df, experiment_name)  
 
 
     #now: 28 sep 2025 will do
