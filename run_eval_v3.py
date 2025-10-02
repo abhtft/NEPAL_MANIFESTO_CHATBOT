@@ -133,17 +133,21 @@ def run_evaluation() -> pd.DataFrame:
 def task(input: str, expected=None, metadata=None) -> dict:
     chain = get_chain()
     result = process_qa_item(input, chain)  
+
+    
     # Ensure JSON-serializable output
     return {
-        "answer": result["answer"],
-        "retrieval_relevance": round(float(result["retrieval_relevance"]), 3),
-        "retrieval_correctness": round(float(result["retrieval_correctness"]), 3),
-        "answer_grounding": round(float(result["answer_grounding"]), 3),
-        "answer_accuracy": round(float(result["answer_accuracy"]), 3),
-        "answer_clarity": round(float(result["answer_clarity"]), 3),
-        "overall_score": round(float(result["overall_score"]), 3),
+        "answer": result["answer"],#string
+        # "retrieval_relevance": round(float(result["retrieval_relevance"]), 3),#values
+        # "retrieval_correctness": round(float(result["retrieval_correctness"]), 3),
+        # "answer_grounding": round(float(result["answer_grounding"]), 3),#float
+        # "answer_accuracy": round(float(result["answer_accuracy"]), 3),#float
+        # "answer_clarity": round(float(result["answer_clarity"]), 3),#float
+        # "overall_score": round(float(result["overall_score"]), 3),
         
     }
+
+    #https://arize.com/docs/ax/develop/datasets-and-experiments/run-experiment
 
 ###################
 
@@ -156,22 +160,42 @@ def upload_to_phoenix(df: pd.DataFrame, experiment_name: str) -> None:
     dataset = px_client.upload_dataset(
         dataframe=df,
         dataset_name=dataset_name,
-        input_keys=["question"],
+        input_keys=["question", *[k for k in (
+            "retrieval_relevance",
+            "retrieval_correctness",
+            "answer_grounding",
+            "answer_accuracy",
+            "answer_clarity",
+            "overall_score",
+        ) if k in df.columns]],
         output_keys=["answer"],
         dataset_description="Evaluation dataset for the manifesto chatgpt",
     )
 
+   
+    
     # Run experiment with avg as metadata
+    # Minimal evaluators (v11.30.0) using allowed param names; read from task output
+    _evaluators = {
+        "retrieval_relevance": (lambda input=None, output=None, **_: bool((output or {}).get("retrieval_relevance", (input or {}).get("retrieval_relevance", 0.0)))),
+        "retrieval_correctness": (lambda input=None, output=None, **_: bool((output or {}).get("retrieval_correctness", (input or {}).get("retrieval_correctness", 0.0)))),
+        "answer_grounding": (lambda input=None, output=None, **_: bool((output or {}).get("answer_grounding", (input or {}).get("answer_grounding", 0.0)))),
+        "answer_accuracy": (lambda input=None, output=None, **_: bool((output or {}).get("answer_accuracy", (input or {}).get("answer_accuracy", 0.0)))),
+        "answer_clarity": (lambda input=None, output=None, **_: bool((output or {}).get("answer_clarity", (input or {}).get("answer_clarity", 0.0)))),
+        "overall_score": (lambda input=None, output=None, **_: float((output or {}).get("overall_score", (input or {}).get("overall_score", 0.0)))),
+    }
+ 
+    # Run experiment with task and explicit evaluators
     experiment = run_experiment(
         dataset=dataset,
         experiment_name=dataset_name,
         experiment_metadata={"run_timestamp": timestamp},
-        task= task#custom function shape taking 
+        task=task,
+        evaluators=_evaluators,
     )
-    # evaluate_experiment(
-    #     experiment=experiment,
-    #     primary_metric="overall_score"
-    # )
+    #custom documentation fo function and classes
+
+    evaluate_experiment(experiment, _evaluators)
 
     
 

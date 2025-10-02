@@ -15,6 +15,6 @@
       "question": "What are the key commitments on healthcare delivery?",
       "expected_keywords": ["health", "primary care", "hospitals", "insurance"],
       "citations": [ { "type": "page", "id": 2 } ]
-    }    
+    }
   ]
 }
